@@ -9,8 +9,8 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from public folder
-app.use(express.static(path.join(__dirname, "public")));
+// Serve static files from the root directory (no 'public' folder)
+app.use(express.static(__dirname));
 
 const EBAY_CLIENT_ID = "YOUR_EBAY_CLIENT_ID";
 const EBAY_CLIENT_SECRET = "YOUR_EBAY_CLIENT_SECRET";
@@ -31,9 +31,12 @@ async function getEbayToken() {
         "Content-Type": "application/x-www-form-urlencoded",
         "Authorization":
           "Basic " +
-          Buffer.from(`${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`).toString("base64"),
+          Buffer.from(
+            `${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`
+          ).toString("base64"),
       },
-      body: "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
+      body:
+        "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
     }
   );
 
@@ -43,14 +46,16 @@ async function getEbayToken() {
   return accessToken;
 }
 
-// API endpoint for frontend
+// API endpoint for frontend to get eBay listings
 app.get("/api/search", async (req, res) => {
   try {
-    const q = req.query.q || "Target";
+    const q = req.query.q || "Target";  // Default to 'Target' if no query
     const token = await getEbayToken();
 
     const ebayRes = await fetch(
-      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(q)}&limit=20`,
+      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
+        q
+      )}&limit=20`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -59,16 +64,16 @@ app.get("/api/search", async (req, res) => {
     );
 
     const data = await ebayRes.json();
-    res.json(data);
+    res.json(data);  // Return the data to the frontend
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "eBay fetch failed" });
   }
 });
 
-// Fallback to index.html for root
+// Serve the 'ebaytracket.html' file when visiting the root URL
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+  res.sendFile(path.join(__dirname, "ebaytracket.html"));
 });
 
 app.listen(3000, () => console.log("✅ Server running at http://localhost:3000"));
