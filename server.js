@@ -31,12 +31,9 @@ async function getEbayToken() {
         "Content-Type": "application/x-www-form-urlencoded",
         "Authorization":
           "Basic " +
-          Buffer.from(
-            `${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`
-          ).toString("base64"),
+          Buffer.from(`${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`).toString("base64"),
       },
-      body:
-        "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
+      body: "grant_type=client_credentials&scope=https://api.ebay.com/oauth/api_scope",
     }
   );
 
@@ -53,9 +50,7 @@ app.get("/api/search", async (req, res) => {
     const token = await getEbayToken();
 
     const ebayRes = await fetch(
-      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
-        q
-      )}&limit=20`,
+      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(q)}&limit=20`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -72,4 +67,8 @@ app.get("/api/search", async (req, res) => {
 });
 
 // Fallback to index.html for root
-app.get("/", (re
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
+
+app.listen(3000, () => console.log("✅ Server running at http://localhost:3000"));
