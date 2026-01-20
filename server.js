@@ -1,8 +1,16 @@
 import express from "express";
 import fetch from "node-fetch";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
-app.use(express.static("public"));
+
+// Fix path for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from public folder
+app.use(express.static(path.join(__dirname, "public")));
 
 const EBAY_CLIENT_ID = "YOUR_EBAY_CLIENT_ID";
 const EBAY_CLIENT_SECRET = "YOUR_EBAY_CLIENT_SECRET";
@@ -58,10 +66,10 @@ app.get("/api/search", async (req, res) => {
     const data = await ebayRes.json();
     res.json(data);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "eBay fetch failed" });
   }
 });
 
-app.listen(3000, () =>
-  console.log("✅ Server running at http://localhost:3000")
-);
+// Fallback to index.html for root
+app.get("/", (re
