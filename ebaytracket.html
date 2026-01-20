@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Target Resell Tracker (2026)</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
+}
+#items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 15px;
+}
+.card {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+}
+img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+</style>
+</head>
+
+<body>
+<h1>Live Reselling Target Items</h1>
+<div id="items">Loading...</div>
+
+<script>
+async function loadItems() {
+  const res = await fetch("/api/search?q=Target");
+  const data = await res.json();
+  const container = document.getElementById("items");
+  container.innerHTML = "";
+
+  if (!data.itemSummaries) {
+    container.textContent = "No items found.";
+    return;
+  }
+
+  data.itemSummaries.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <img src="${item.image?.imageUrl || ""}">
+      <h3>${item.title}</h3>
+      <p><b>Price:</b> ${item.price?.value || "?"} ${item.price?.currency || ""}</p>
+      <a href="${item.itemWebUrl}" target="_blank">View on eBay</a>
+    `;
+    container.appendChild(div);
+  });
+}
+
+loadItems();
+</script>
+</body>
+</html>

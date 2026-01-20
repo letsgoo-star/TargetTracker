@@ -1,0 +1,5 @@
+HOW TO RUN IT
+npm install
+node server.js
+THEn OPEN 
+http://localhost:3000
